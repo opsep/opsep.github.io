@@ -1,6 +1,6 @@
 - name: Home
   link: /
-- name: About
-  link: /about.html
 - name: Tech Specs
   link: /tech-specs.html
+- name: Negatives
+  link: /negatives.html

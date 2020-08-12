@@ -7,8 +7,8 @@
 	],
 	"sourcesContent": [
 		"@import \"main\";",
-		".current {\n  color: green;\n}"
+		"/* Move down content because we have a fixed navbar that is 3.5rem tall */\nbody {\n  padding-top: 3.5rem;\n}\n\n/* Sticky footer styles\n-------------------------------------------------- */\nhtml {\n  position: relative;\n  min-height: 100%;\n}\nbody {\n  /* Margin bottom by footer height */\n  margin-bottom: 60px;\n}\n.footer {\n  position: absolute;\n  bottom: 0;\n  width: 100%;\n  /* Set the fixed height of the footer here */\n  height: 60px;\n  line-height: 60px; /* Vertically center the text there */\n  background-color: #f5f5f5;\n}\n\n\n/* Custom page CSS\n-------------------------------------------------- */\n/* Not required for template or sticky footer method. */\n\nbody > .container {\n  padding: 60px 15px 0;\n}\n\n.footer > .container {\n  padding-right: 15px;\n  padding-left: 15px;\n}\n\ncode {\n  font-size: 80%;\n}\n\n"
 	],
 	"names": [],
-	"mappings": "ACAA,AAAA,QAAQ,CAAC,EACP,KAAK,EAAE,KAAK,GACb"
+	"mappings": "ACAA,0EAA0E;AAC1E,AAAA,IAAI,CAAC,EACH,WAAW,EAAE,MAAM,GACpB;;AAED;qDACqD;AACrD,AAAA,IAAI,CAAC,EACH,QAAQ,EAAE,QAAQ,EAClB,UAAU,EAAE,IAAI,GACjB;;AACD,AAAA,IAAI,CAAC,EACH,oCAAoC,CACpC,aAAa,EAAE,IAAI,GACpB;;AACD,AAAA,OAAO,CAAC,EACN,QAAQ,EAAE,QAAQ,EAClB,MAAM,EAAE,CAAC,EACT,KAAK,EAAE,IAAI,EACX,6CAA6C,CAC7C,MAAM,EAAE,IAAI,EACZ,WAAW,EAAE,IAAI,EAAE,sCAAsC,CACzD,gBAAgB,EAAE,OAAO,GAC1B;;AAGD;qDACqD;AACrD,wDAAwD;AAExD,AAAA,IAAI,GAAG,UAAU,CAAC,EAChB,OAAO,EAAE,WAAW,GACrB;;AAED,AAAA,OAAO,GAAG,UAAU,CAAC,EACnB,aAAa,EAAE,IAAI,EACnB,YAAY,EAAE,IAAI,GACnB;;AAED,AAAA,IAAI,CAAC,EACH,SAAS,EAAE,GAAG,GACf"
 }
