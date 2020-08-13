@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>SecondGuard | {{ page.title }}</title>
+    <title>OpSep | {{ page.title }}</title>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-173373847-1"></script>
     <script>
@@ -59,12 +59,20 @@
 	    {% if page.title %}
 	      <h1>{{ page.title }}</h1>
 	    {% endif %}
+
 	    {% if page.toc == true %}
+
 	      {% if page.pre_toc %}
 		<p>{{ page.pre_toc }}</p>
 	      {% endif %}
-	      {% include toc.html html=content %}
+
+	      <h2>Table of Contents</h2>
+	      {% include toc.html html=content h_max=4 ordered=true %}
+
+	      <hr />
+
 	    {% endif %}
+
 	    {{ content }}
 	</div>
     </main>

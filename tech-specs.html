@@ -1,5 +1,12 @@
 ---
 title: Tech Specs
+toc: true
+pre_toc: |
+  This tutorial will walk you through OpSep's
+  <a href="https://en.wikipedia.org/wiki/Hybrid_cryptosystem">hybrid encryption</a>
+  so that you understand the trustless nature of the protocol.
+  In production, you will use client libraries that abstract away all of this complexity
+  (see <a href="#conclusion">example at the bottom of this page</a>).
 extra_head: >
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css" integrity="sha384-s4RLYRjGGbVqKOyMGGwfxUTMOO6D7r2eom7hWZQ6BjK2Df4ZyfzLXEkonSm0KLIQ" crossorigin="anonymous">
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha384-Ps4mV2yvziPjgIWO9pbQHa284ptEiNWkl7v52q6dV6cz3Ap2nd5G8YuZe15nrZKW" crossorigin="anonymous"></script>
@@ -21,27 +28,20 @@ extra_body: >
 ---
 
 <p>
-  This tutorial will walk you through OpSep's
-  <a href="https://en.wikipedia.org/wiki/Hybrid_cryptosystem">hybrid encryption</a>
-  so that you understand the trustless nature of our protocol.
-  In production, you will use client libraries that abstract away all of this complexity
-  (see <a href="#conclusion">example at the bottom of this page</a>).
-</p>
-<p>
   Before we get started, it's important to understand the terms
   <strong>Data Encryption Key</strong> (DEK) and
   <strong>Key Encryption Key</strong> (KEK).
   We use DEKs to encrypt data, and a KEK to encrypt DEKs.
-  We'll use a unique DEK for each record we encrypt.
-  Our DEKs use symmetric encryption, because it is highly performant.
-  Our KEK uses asymmetric encryption, so we can encrypt unlimited records using the same RSA pubkey (and locally without hitting an external server).
-  Our KEK will be guarded inside of OpSep's Hardware Security Module (HSM).
+  We'll use a unique DEK for each record we encrypt, and the same KEK for each DEK.
+  Your DEKs use symmetric encryption, because it is highly performant.
+  Your KEK uses asymmetric encryption, so we can encrypt unlimited records using the same RSA pubkey (and locally without hitting an external server).
+  Your KEK will be guarded by an OpSep server controlled by your security team (we recommend hardening this with an HSM).
 </p>
 <hr />
 
-<h4>1. Upgrade OpenSSL</h4>
+<h4 id="UpgradeOpenSSL">Upgrade OpenSSL</h4>
 <p>
-  The protocol our HSMs use requires <code>openssl</code> version <code>1.1</code> or greater.
+  This protocol requires <code>openssl</code> version <code>1.1</code> or greater.
   You can see what version you're running like this:
 </p>
 <p>
@@ -65,7 +65,7 @@ OpenSSL 1.1.1g  21 Apr 2020</pre>
 </p>
 <br/>
 
-<h4>2. Grab an RSA Public Key</h4>
+<h4 id="GrabRSAPubkey">Grab an RSA Public Key</h4>
 <p>
   Grab
   <a href="https://test.secondguard.com/">SecondGuard's testing RSA Public Key</a>.
@@ -76,7 +76,7 @@ OpenSSL 1.1.1g  21 Apr 2020</pre>
       <i class="fa fa-clipboard" aria-hidden="true"></i> copy
   </button>
   <code class="language-bash">
-      <pre>$ <span id="curlKekCopy">curl https://test.secondguard.com | python3 -c "import sys, json; print(json.load(sys.stdin)['rsaPubKey'].strip())" | awk '{gsub(/\\n/,"\n")}1' &gt; rsa_kek.pub<span></pre>
+      <pre>$ <span id="curlKekCopy">curl -s https://test.secondguard.com | python3 -c "import sys, json; print(json.load(sys.stdin)['rsaPubKey'].strip())" | awk '{gsub(/\\n/,"\n")}1' &gt; rsa_kek.pub<span></pre>
   </code>
 </p>
 <p>
@@ -88,29 +88,30 @@ OpenSSL 1.1.1g  21 Apr 2020</pre>
   <div class="card card-body">
     <p>
       <strong>Do not use this key to protect real data!</strong>
-      Each OpSep customer receives their own key stored in our HSM.
+      The private key has intentionally been published.
+      Each OpSep server generates their own key with strict access controls.
     </p>
     <hr />
     <p>
       Your can see what the public key looks like by running this:
-      <code class="language-bash">
-<pre>$ cat rsa_kek.pub
+      <code class="language-bash"><pre>
+$ cat rsa_kek.pub 
 -----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAxY9sgHqrHRkfppnOJACr
-hwYxHP4d/OUUzbTiNFfcFoCyCUCL6dnLql1WPfaUyYWeLEQ4NTFI9Nfdy9tka6ZO
-75V3LCW5l2TMkbb0BvWnAcIK3lMY19kfFyImAoLvcZcAevi0ogkOn20zDrxVhlpv
-QAu3OMCQmc1aMgv6pp1FO4v3OjiXNp1AQQw8CIHnQzlLmGSMeUK1hdCcSGXq5qLA
-XrKwdkA8K6gDi67A43ZcWzew1KF8OwtA2WyLRfbzGaXqqq2pLNcrt90v64azkk+Q
-n8JTJym7k30Jv7zbhsGR08dvk6zn7TrNMn1TsIwflDFGSpzSCAQcz1gR+0GiwGvk
-qQkKeNhTAUHOdf7IONEpmZ+46O4uUmtAXu5lI0D5dPtl2M5ZtAjxRMvXX65QeNd7
-MwcoXy5LaUMnDVl8Sq8OL8dj8PMKiqO7m/yMuMfXgEd9EcdzFt80rRUCH3/H3+MT
-QMZdlbNASA5d//MOxERsb1ildEyfTQpSWvyeGIpCCtPmq3yJbKat95RTUX4uJPLi
-KFCifkVhirl+XxdDK6L0gly0kZEW41qyKZL+++5M6NalsBsMr5AFAUF0Ws4E+aWf
-6Zm8FDi6G4ZpAmVpP6bmqY+GoTFBQKXezICAwsJ6Dhy8UUHxDRQIiNTSLVnO5wgR
-cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
--------END PUBLIC KEY-----
-</pre>
-      </code>
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA7q4R3soRD2CrjL13OK6Y
+SBG8wpjP5sbfkL0QhpJMH87grlR2SS3CUnbYCOONzQiJ3OuKAViy/lMw1KsmG9Nn
+hAot2acg1iNyZRY33LR2jwmfFF+2iRp0itPQeOHY6GS8m3WLCMtC/kWUq0Bl5g1P
+Ya9JXwSkTTRJunNH0TPk8uqwFeVhpT336M1H6ed105L8a8W3mpSwlwePron7pLf7
+wD32m9RT0nNdnHBDQCsUKS/Gdp+saLYWTgj0rpnQCe8f1p3g36Gm0gTzr3X0Adow
+8gIPfxO4HU/0cdL+Pw4mpcsWJ4531taRLLGb+a2la2zAUteYcS+8d4Nb8Omkbz39
+PylvKP6R1kHElqlF3BnwUp0AdcAvOLdeX8kYUlbKE8xwjHm/KwwleKlcAZDam7hC
+Rw72JUQiod0E7My+SiZ3Ij5zKnxZXmAF5BX8T+YSqSzR4Qdp2QU9L9GgAZo/HPBN
+wME9v8usjEzrEItSSg3Nn10+J+ygsCqjrCT8CnSvD8wEyDSdO/Jly9DnWJ6B2HJE
+Oc4wxWGFTCE0wiQOwC3IPNxFhuWun6/4tsEQcDs5XHaBXIHry5WCiVkjwa2pc95x
+iXcfoQWr1A/jLe/MrZyN4yrgDK9mmQxxNzVfLj8S9NPjJMv+K7BKvtOmvoqsf13K
+6hYJGkAdR0d99DNFlllRm7cCAwEAAQ==
+-----END PUBLIC KEY-----
+</pre></code>
+    </p>
     <hr />
     <p>
       The same RSA public key can be re-used for every DEK, so this step only has to be performed once.
@@ -121,7 +122,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 </div>
 <br/>
 
-<h4>3. Generate a Random DEK Locally</h4>
+<h4 id="GenDEK">Generate a Random DEK Locally</h4>
 <p>
   The symmetric data encryption key (DEK) will be used to encrypt your secret <em>locally</em>.
   <strong>Our protocol is designed so that we can never recover your plaintext</strong>, even if our systems were compromised.
@@ -160,16 +161,16 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
     </p>
     <hr />
     <p>
-      At the time you encrypt your data with a unique DEK, OpSep will not have access to this DEK.
-      If you later use OpSep to decrypt your data, we will be able to reconstruct this symmetric DEK with the data you supply us.
-      Recovering your plaintext requires <em>both</em> your ciphertext (which never leaves your server and OpSep never sees) as well as this symmetric DEK.
+      At the time you encrypt your data with a unique DEK, your OpSep server will not have access to this DEK.
+      If you later use OpSep to decrypt your data, your OpSep server will be able to reconstruct this symmetric DEK with the data you supply.
+      Recovering your plaintext requires <em>both</em> your ciphertext (which never leaves your server and your OpSep server never sees) as well as this symmetric DEK.
     </p>
   </div>
 </div>
 <br/>
 
 
-<h4>4. Encrypt Your Secret Locally Using Your DEK</h4>
+<h4 id="EncryptSecret">Encrypt Your Secret Locally Using Your DEK</h4>
 <p>
   OpSep works with any type of data (string, binary, integer, boolean, etc), but for simplicity we'll protect a string.
   We're choosing the secret <code>Attack at dawn</code>, but you can guard any secret you like:
@@ -195,7 +196,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
     </p>
     <hr />
     <p>
-      You can verify this does indeed appear encrypted:<br />
+      You can verify this does indeed appear encrypted (your result will be slightly different):<br />
       <code>
         $ cat secret.symm_enc <br />
         Salted__??a3??=Hz???l'??f?\?
@@ -239,7 +240,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 <br/>
 
 
-<h4>5. Encrypt Your DEK with OpSep's KEK</h4>
+<h4 id="EncryptDEK">Encrypt Your DEK with OpSep's KEK</h4>
 <p>
   We're using <a href="#">Optimal Asymmetric Encryption Padding with RSA</a> and <a href="https://en.wikipedia.org/wiki/SHA-2">SHA-256</a> as our hash function.
   Due to the magic of asymmetric cryptography, this takes place locally using the public key (<code>rsa_kek.pub</code>) that we downloaded earlier.
@@ -265,8 +266,12 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
     <p>
       By using a <code>JSON</code> file, OpSep supports powerful restrictions on future decryption.
       For example, we can add an RFC3339 timestamp called <code>deprecate_at</code> that will mark the key as deprecated at a certain time in the future.
-      This notation occurs client-side and does not immediately leave your server.
-      However, if OpSep's HSM decrypts this file in the future and the <code>deprecate_at</code> date has passed, then OpSep can refuse to return this deprecated key.
+      This notation occurs client-side and does not immediately leave your client.
+      However, if your OpSep server decrypts this file in the future and the <code>deprecate_at</code> date has passed, then OpSep can refuse to return this deprecated key.
+    </p>
+    <hr>
+    <p>
+      Your OpSep server also supports the <code>client_record_id</code> and <code>risk_multiplier</code> (see <a href="https://github.com/opsep/opsep-server">OpSep server</a> for details).
     </p>
   </div>
 </div>
@@ -323,7 +328,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 </div>
 <br/>
 
-<h4>6. Throw Away the DEK</h4>
+<h4 id="RemoveDEK">Throw Away the DEK</h4>
 <p>
   If an attacker gets your ciphertext (<code>secret.symm_enc</code>) and your symmetric DEK (<code>symmetric_dek.txt</code> &amp; <code>symmetric_dek.json</code>) they can easily decrypt your ciphertext into plaintext.
   By throwing away your symmetric DEK (<code>symmetric_dek.txt</code> &amp; <code>symmetric_dek.json</code>), you eliminate this risk and can truly secure your database.
@@ -349,7 +354,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 </div>
 <br/>
 
-<h4>7. Recover Your DEK Using OpSep's API</h4>
+<h4 id="RecoverDEK">Recover Your DEK Using OpSep's API</h4>
 <p>
     Let's say some time has passed and you want to decrypt your ciphertext.
     You make the following query to OpSep's servers to recover your symmetric data encryption key (DEK):
@@ -359,7 +364,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
       <i class="fa fa-clipboard" aria-hidden="true"></i> copy
   </button>
   <code class="language-bash">
-    <pre>$ <span id="recoverDek">curl -X POST https://test.secondguard.com/api/v1/decrypt -H 'Content-Type: application/json' -d '{"key_retrieval_ciphertext":"'$(cat symmetric_dek.asymm_enc)'"}' &gt; opsep_api_response.txt</span></pre>
+    <pre>$ <span id="recoverDek">curl -s -X POST https://test.secondguard.com/api/v1/decrypt -H 'Content-Type: application/json' -d '{"key_retrieval_ciphertext":"'$(cat symmetric_dek.asymm_enc)'"}' &gt; opsep_api_response.txt</span></pre>
   </code>
 </p>
 <p>
@@ -370,15 +375,13 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 <div class="collapse" id="curlDetails">
   <div class="card card-body">
     <p>
-      <code>SG-XXXX</code> is a testing API key, you'd substitute your own key here in production.
+      We're using <code>'$(cat ...)'</code> as a fancy of way passing in the contents of <code>symmetric_dek.asymm_enc</code> into the json payload that we're POSTing.
+      Normally, your client library would handle all this complexity for you.
     </p>
     <hr />
     <p>
-      We're using <code>'$(cat ...)'</code> as a fancy of way passing in the contents of <code>symmetric_dek.asymm_enc</code> into the json payload that we're POSTing.
-      If you prefer, you can manually substitute so that your <code>-d</code> flag looks something like this:
-      <code>
-          -d '{"key_retrieval_ciphertext":"jx70uVbQaZeQ...CfTIFI8iqdYX73E"}'
-      </code>
+      If you prefer, you can manually substitute so that your <code>-d</code> flag looks something like this:<br />
+      <code><pre>-d '{"key_retrieval_ciphertext":"jx70uVbQaZeQ...CfTIFI8iqdYX73E"}'</pre></code>
     </p>
   </div>
 </div>
@@ -392,7 +395,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
       <i class="fa fa-clipboard" aria-hidden="true"></i> copy
   </button>
   <code class="language-bash">
-    <pre>$ <span id="parseDek">cat opsep_api_response.txt | python3 -c "import sys, json; print(json.load(sys.stdin)['key_recovered'].strip())" &gt; symmetric_dek_recovered.txt</span></pre>
+    <pre>$ <span id="parseDek">cat opsep_api_response.txt | python3 -c "import sys, json; print(json.load(sys.stdin)['keyRecovered'].strip())" &gt; symmetric_dek_recovered.txt</span></pre>
   </code>
 </p>
 <p>
@@ -414,14 +417,14 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
       Using <code>python3</code> is a verbose way to parse the JSON that OpSep's API returns.
       If you have <a href="https://stedolan.github.io/jq/">jq</a> installed you can instead do:
       <code class="language-bash">
-        <pre>$  cat opsep_api_response.txt | jq -r '.key_recovered' &gt; symmetric_dek_recovered.txt </pre>
+        <pre>$ cat opsep_api_response.txt | jq -r '.keyRecovered' &gt; symmetric_dek_recovered.txt </pre>
       </code>
     </p>
   </div>
 </div>
 <br/>
 
-<h4>8. Decrypt Your Ciphertext Locally to Recover Your Secret</h4>
+<h4 id="DecryptCiphertext">Decrypt Your Ciphertext Locally to Recover Your Secret</h4>
 <p>
   Now all that's left to do is locally recover your original secret with your symmetric DEK:
 </p>
@@ -441,26 +444,24 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 <div class="collapse" id="decryptDetails">
   <div class="card card-body">
     <p>
-        While OpSep did gain access to your symmetric DEK (<code>symmetric_dek_recovered.txt</code>),
-        we never saw your ciphertext (<code>secret.symm_enc</code>) and we have no ability to access your plaintext.
-        In fact, we don't even know what <em>type</em> of data you're protecting (binary, string, integer, boolean, etc),
-        which database you use to store your ciphertext, or even where it is hosted.
+        While your OpSep server did gain access to your symmetric DEK (<code>symmetric_dek_recovered.txt</code>), it never saw your ciphertext (<code>secret.symm_enc</code>) and it has no ability to access your plaintext.
+        In fact, it doesn't even know what <em>type</em> of data you're protecting (binary, string, integer, boolean, etc), which database you use to store your ciphertext, or even where it is hosted.
     </p>
   </div>
 </div>
 <br/>
 
 
-<h4>9. Rate Limiting</h4>
+<h4 id="RateLimit">Rate Limiting</h4>
 <p>
   You may have noticed that the <code>curl</code> command to OpSep's servers returned the Rate Limiting fields
-  <code>ratelimit_limit</code>,
-  <code>ratelimit_remaining</code>, and
-  <code>ratelimit_resets_in</code>.
-  Calls to your HSM to decrypt your symmetric DEKs are intentionally rate limited.
+  <code>ratelimitTotal</code>,
+  <code>ratelimitRemaining</code>, and
+  <code>ratelimitResetsIn</code>.
+  Calls to your OpSep server to decrypt your symmetric DEKs are intentionally rate limited.
   This means that
   <strong>
-    even if an attacker or rogue employee has root access to your server and database,
+    even if an attacker or rogue employee has root access to your web server and database,
     OpSep's rate-limit policy allows you to configure the amount of data they'll be able to decrypt
   </strong>
   before you are notified and they are blocked.
@@ -502,7 +503,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 </div>
 <br/>
 
-<h4>10. Decryption Audit Log</h4>
+<h4 id="DecryptionAuditLog">Decryption Audit Log</h4>
 <p>
   If a rogue employee or outside attacker gains unauthorized access to your server, you can use our audit log to see all the records they attempted to decrypt.
   Let's calculate the sha256 hash digest of your asymmetrically-encrypted symmetric DEK (<code>symmetric_dek.asymm_enc</code>):
@@ -516,7 +517,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
   </code>
 </p>
 <p>
-  Because <code>symmetric_key_asymmetric_enc.digest</code> is only a hash digest (and only of ciphertext whose private key is protected by our HSMs), it's safe for OpSep to store this data outside of our HSMs and allow our users to query these (without a rate-limit) to see which records may have been decrypted.
+  Because <code>symmetric_key_asymmetric_enc.digest</code> is only a hash digest (and only of ciphertext whose private key is protected by your OpSep server), it's safe for OpSep to allow users to query these (without a rate-limit) to see which records may have been decrypted.
   <strong>This allows you to focus your data breach response <em>only</em> on the minisicule percentage of users who were potentially affected</strong>!
 </p>
 <p>
@@ -540,6 +541,8 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
 </div>
 <br/>
 
+
+<hr />
 <h3 id="conclusion">Conclusion</h3>
 <p>
   While this may look complicated, client libraries make it easy for developers with no knowledge of cryptography to automagically protect their sensitive data in just a few minutes.
@@ -548,6 +551,7 @@ cRfaU/jG6gorIFQvw8mw2hcCAwEAAQ==
   Here is a code snippet from our
   <a href="https://github.com/opsep/opsep-python">python client library</a>:
 </p>
+
 <p>
   <button type="button" class="btn btn-sm pull-right" data-clipboard-target="#pythonCode">
       <i class="fa fa-clipboard" aria-hidden="true"></i> copy
