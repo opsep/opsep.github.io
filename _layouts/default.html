@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>{{ page.title }}</title>
+    <title>SecondGuard | {{ page.title }}</title>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-173373847-1"></script>
     <script>
@@ -15,15 +15,24 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link href="static/css/main.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    >
+    <link
+      rel="stylesheet"
+      href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous"
+    >
+    <link
+      rel="stylesheet"
+      href="/assets/css/styles.css"
+    >
 
     {{ page.extra_head }}
-    
   </head>
   <body>
 
@@ -32,6 +41,15 @@
     <main role="main">
 	<br />
 	<div class="container">
+	    {% if page.title %}
+	      <h1>{{ page.title }}</h1>
+	    {% endif %}
+	    {% if page.toc == true %}
+	      {% if page.pre_toc %}
+		<p>{{ page.pre_toc }}</p>
+	      {% endif %}
+	      {% include toc.html html=content %}
+	    {% endif %}
 	    {{ content }}
 	</div>
     </main>

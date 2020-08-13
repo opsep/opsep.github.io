@@ -1,9 +1,12 @@
 ---
 title: Tradeoffs
----
+toc: true
+pre_toc: |
+  We believe the OpSep protocol is <strong>strictly superior</strong> to how 99&#37; of companies secure their data, but there are limitations:
 
-## Tradeoffs
-We believe the OpSep protocol is <strong>strictly superior</strong> to how 99&#37; of companies secure their data, but there are limitations:
+
+...
+
 
 #### For Bulk Data Only
 While our security model is <em>additive</em>, we only provide additional protection for storing secrets if you <em>want</em> your rate-limiting policy to block bulk decryption of all the records.
