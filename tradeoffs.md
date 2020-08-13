@@ -1,8 +1,8 @@
 ---
-title: Negatives
+title: Tradeoffs
 ---
 
-## Negatives
+## Tradeoffs
 We believe the OpSep protocol is <strong>strictly superior</strong> to how 99&#37; of companies secure their data, but there are limitations:
 
 #### For Bulk Data Only

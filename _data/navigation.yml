@@ -2,7 +2,7 @@
   link: /
 - name: Tech Specs
   link: /tech-specs.html
-- name: Negatives
-  link: /negatives.html
+- name: Tradeoffs
+  link: /tradeoffs.html
 - name: Hosted
   link: /hosted.html
