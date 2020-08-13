@@ -36,7 +36,22 @@
   </head>
   <body>
 
-    {% include navigation.html %}
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container">
+	<a class="navbar-brand" href="/">OpSep - Separate Your Keys</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	  <span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+	  <ul class="navbar-nav ml-auto">
+	      {% for item in site.data.navigation %}
+		  <li class="nav-item{% if page.url == item.link %} active{% endif %}"><a class="nav-link" href="{{ item.link }}">{{ item.name }}</a></li>
+	      {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    </nav>
 
     <main role="main">
 	<br />
@@ -57,13 +72,14 @@
     <footer class="footer">
       <div class="container">
 	<span class="float-left">
-	    <a href="https://github.com/opsep/opsep-python">Python Client Library</a>
-	    <span class="text-muted">|</span>
-	    <a href="https://github.com/opsep/opsep-server">OpSep Server</a>
+	    OpSep
+	    <a href="https://github.com/opsep/opsep-python">Client</a>
+	    <span class="text-muted">and</span>
+	    <a href="https://github.com/opsep/opsep-server">Server</a>
 	</span>
 
 	<span class="float-right">
-	    <a href="https://github.com/opsep/opsep.github.io/">Edit This Page</a>
+	    <a href="https://github.com/opsep/opsep.github.io/">Fork Me</a>
 	</span>
       </div>
     </footer>
