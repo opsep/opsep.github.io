@@ -22,11 +22,18 @@ extra_body: >
 
 <p class="lead">Even a rogue employee with physical access to your server &amp; database cannot bulk decrypt your data.</p>
 
-<p>We make it easy to store bulk document scans, pictures, credit card numbers, account/routing numbers, medical data, social security numbers, private financial records, messages and more.</p>
+<p>
+  Use
+  <a href="https://en.wikipedia.org/wiki/Hybrid_cryptosystem">hybrid encryption</a>
+  to operationally separate your data from your keys and enforce rate-limits on your most sensitive data.
+  Reduce the damage of data-breaches 100x, and maintain an audit log to track exposure.
+</p>
+
+<p>OpSep makes it easy to store bulk document scans, pictures, credit card numbers, account/routing numbers, medical data, social security numbers, private financial records, messages and more.</p>
 
 <hr />
 
-<p>Protecting your secrets in just a few lines of code:</p>
+<p>Protect your secrets in just a few lines of code (see <a href="/tech-specs.html">tech specs</a>):</p>
 
 <p>
     <code class="language-python">
@@ -56,8 +63,6 @@ if your_secret == secret_recovered:
 </pre>
     </code>
 </p>
-
-<p>See <a href="/tech-specs.html">tech specs</a> for details.
 
 <p>
 TODO: chart of client library compatibility:
