@@ -45,7 +45,7 @@ local_ciphertext, opsep_recovery_instructions = opsep_hybrid_encrypt(
 )
 
 # Asymmetrically decrypt opsep_recovery_instructions (via OpSep's rate-limited API) and use it to symmetrically decrypt local_ciphertext: 
-secret_recovered, rate_limit_dict = opsep_hybrid_decrypt( 
+secret_recovered, _ = opsep_hybrid_decrypt( 
     local_ciphertext_to_decrypt=local_ciphertext, 
     opsep_recovery_instructions=opsep_recovery_instructions,
     opsep_url=OPSEP_URL,
