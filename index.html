@@ -33,10 +33,10 @@ extra_body: >
 
 <hr />
 
-<p>Protect your secrets in just a few lines of code (see <a href="/tech-specs.html">tech specs</a>):</p>
+<p>Protect your secrets in just a few lines of code:</p>
 
 <p>
-    <code class="language-python">
+  <code class="language-python">
 <pre>from opsep import opsep_hybrid_encrypt, opsep_hybrid_decrypt
 
 # Testing RSA PubKey and OpSep API Server URL (normally saved in your app's config)
@@ -61,9 +61,11 @@ secret_recovered, _ = opsep_hybrid_decrypt(
 if your_secret == secret_recovered:
     print("Your secret was recovered: %s" % secret_recovered)
 </pre>
-    </code>
+  </code>
 </p>
 
+<br />
 <p>
-TODO: chart of client library compatibility:
+  See the OpSep Server, OpSep client, and documentation at
+  <a href="https://github.com/opsep/">https://github.com/opsep/opsep-server</a>.
 </p>
