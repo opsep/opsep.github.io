@@ -1,3 +1,4 @@
 # opsep.github.io
 
-[secondguard.com](http://www.secondguard.com)
+Static site for the OpSep protocol.
+[opsep.github.io](https://opsep.github.io)
