@@ -4,5 +4,5 @@
   link: /tech-specs.html
 - name: Tradeoffs
   link: /tradeoffs.html
-- name: Hosted
-  link: /hosted.html
+- name: GitHub
+  link: https://www.github.com/opsep
