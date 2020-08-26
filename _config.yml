@@ -3,3 +3,5 @@ defaults:
       path: ""
     values:
       layout: "default"
+
+exclude: [serve_jekyll_local.sh]
